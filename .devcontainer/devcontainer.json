@@ -1,0 +1,18 @@
+{
+  "name": "Multi-LLM-Project",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "remoteUser": "vscode",
+  "postCreateCommand": "python3 .llm-agents/scripts/register-skills.py",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "anthropic.claude-code",
+        "openai.chatgpt",
+        "github.copilot",
+        "github.copilot-chat"
+      ]
+    }
+  }
+}
