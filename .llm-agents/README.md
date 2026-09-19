@@ -92,7 +92,7 @@ python3 -m unittest discover -s .llm-agents/tests -v
 python3 .llm-agents/scripts/register-skills.py --check
 ```
 
-GitHub Actions でも Ubuntu・macOS・Windows で同じ確認を実行します。Windows のテストにはシンボリックリンク作成権限が必要です。CI のチェックはファイルの整合性を検証するもので、各エージェントの画面上での認識は別途確認してください。
+テストは必要に応じてローカルで実行してください。Windows のテストにはシンボリックリンク作成権限が必要です。このチェックはファイルの整合性を検証するもので、各エージェントの画面上での認識は別途確認してください。
 
 ### Windows での利用
 
