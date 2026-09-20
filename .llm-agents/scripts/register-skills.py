@@ -52,6 +52,9 @@ def register(root, check=False):
     pending = []
     for skill in sorted(source.iterdir()):
         if not (skill / 'SKILL.md').is_file():
+            # 作成途中のディレクトリを見落とさないよう、無言では飛ばさない。
+            if skill.is_dir():
+                print(f'警告: SKILL.md がないため登録しません: {skill.relative_to(root)}', file=sys.stderr)
             continue
         validate_skill(skill)
         # Copilot も .claude/skills を探索するため、専用のコピーは作らない。

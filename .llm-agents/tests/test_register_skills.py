@@ -106,6 +106,19 @@ class RegisterTests(unittest.TestCase):
         self.run_register()
         self.run_register(check=True)
 
+    def test_directory_without_document_warns_and_is_skipped(self):
+        (self.source / 'broken').mkdir()
+        (self.source / '.gitkeep').write_text('', encoding='utf-8')
+        self.skill()
+        errors = io.StringIO()
+        with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(errors):
+            register(self.root)
+        self.assertIn('broken', errors.getvalue())
+        self.assertNotIn('.gitkeep', errors.getvalue())
+        for folder in ('.agents/skills', '.claude/skills'):
+            self.assertFalse((self.root / folder / 'broken').exists())
+            self.assertTrue((self.root / folder / 'example').is_symlink())
+
     def test_unrelated_links_are_preserved(self):
         parent = self.root / '.agents/skills'
         parent.mkdir(parents=True)
