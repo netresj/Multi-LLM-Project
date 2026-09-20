@@ -47,7 +47,7 @@ curl -v --fail --head http://registry.npmjs.org
 curl -v --fail --head https://pypi.org/simple/pip/
 ```
 
-ホストのリポジトリルートから状態とアクセスログを確認できます。
+ホストのリポジトリルートから状態とアクセスログを確認できます。`compose.yaml` の `name` で Compose のプロジェクト名を `multi-llm-project_devcontainer` に固定しているため、Dev Containers 拡張が起動したコンテナも次のコマンドで操作できます。実際のプロジェクト名は `docker compose ls` で確認できます。
 
 ```sh
 docker compose -f .devcontainer/compose.yaml ps
