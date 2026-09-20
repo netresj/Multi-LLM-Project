@@ -2,13 +2,13 @@
 
 ## このリポジトリについて
 
-このリポジトリは複数のLLMをVSCodeのコーディングエージェントで利用するためのテンプレートリポジトリです.
-対象とするLLMサービスは Claude Code, Codex, および Github Copilot です.
-Windows, Mac OS, Linux(Ubuntu) での開発を対象とします.
+このリポジトリは、複数の LLM を VS Code のコーディングエージェントで利用するためのテンプレートリポジトリです。
+対象とする LLM サービスは Claude Code、Codex、GitHub Copilot です。
+Windows、macOS、Linux（Ubuntu）での開発を対象とします。
 
 ## はじめ方
 
-1. このリポジトリをテンプレートとして利用するか、クローンします。
+1. このリポジトリをテンプレートとして利用するか、クローンします。Windows で直接クローンする場合は、スキル登録用のシンボリックリンクを保持するため [Windows での利用](.llm-agents/README.md#windows-での利用) を先に確認してください。
 2. VS Code でリポジトリのルートを開き、必要な推奨拡張機能をインストールします。
 3. 利用する Claude Code、Codex、GitHub Copilot のアカウントでサインインします。
 4. [共通ルール](AGENTS.md) を確認し、[共通プロンプト](.llm-agents/instructions.md) の未設定項目をプロジェクトに合わせて記入します。
@@ -20,17 +20,31 @@ Windows, Mac OS, Linux(Ubuntu) での開発を対象とします.
 .
 ├── AGENTS.md                       # 共通ルールの正本・Codex の入口
 ├── CLAUDE.md                       # Claude Code の入口
+├── LICENSE
 ├── .github/
-│   └── copilot-instructions.md      # GitHub Copilot の入口
+│   └── copilot-instructions.md     # GitHub Copilot の入口
 ├── .llm-agents/
 │   ├── README.md                   # エージェント構成の説明
 │   ├── instructions.md             # 共通プロンプトの本体
+│   ├── requirements.txt            # 登録スクリプトの依存（PyYAML）
 │   ├── skills/                     # スキルの本体の配置先
-│   └── agents/                     # エージェント定義の本体の配置先
+│   ├── agents/                     # エージェント定義の本体の配置先
+│   ├── scripts/
+│   │   └── register-skills.py      # 探索場所へのリンクの登録・検証
+│   └── tests/
+│       └── test_register_skills.py # 登録スクリプトの回帰テスト
+├── .claude/skills/                 # Claude Code・Copilot の探索場所（本体へのリンク）
+├── .agents/skills/                 # Codex の探索場所（本体へのリンク）
 ├── .devcontainer/
 │   ├── README.md                   # 開発環境の説明
 │   ├── devcontainer.json           # Ubuntu ベースの共通環境
-│   └── Dockerfile                  # RTK・検索補助ツールの導入
+│   ├── compose.yaml                # 開発用コンテナとプロキシの起動定義
+│   ├── Dockerfile                  # RTK・検索補助ツールの導入
+│   └── proxy/                      # Squid によるドメインの許可・拒否
+│       ├── Dockerfile
+│       ├── entrypoint.sh           # リストから ACL を生成
+│       ├── squid.conf
+│       └── lists/                  # whitelist.txt・blacklist.txt
 └── .vscode/
     ├── extensions.json             # 推奨拡張機能
     └── settings.json               # ワークスペース設定

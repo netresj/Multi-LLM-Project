@@ -16,10 +16,16 @@
 
 ## プロジェクト固有の情報
 
-雛形を利用する際に、以下をプロジェクトに合わせて記入してください。
+雛形を利用する際に、以下をプロジェクトに合わせて書き換えてください。現在の内容はこのテンプレートリポジトリ自体のものです。
 
-- 目的・対象範囲: 未設定
-- 使用言語・フレームワーク: 未設定
-- セットアップコマンド: 未設定
-- ビルド・テスト・静的解析コマンド: 未設定
-- コーディング規約: 未設定
+- 目的・対象範囲: Claude Code、Codex、GitHub Copilot で共通の指示とスキルを共有するためのテンプレート。アプリケーションのコードは含まない。
+- 使用言語・フレームワーク: Python 3。標準ライブラリと PyYAML のみを使う。
+- セットアップコマンド: `python3 -m venv .venv` の後に `.venv/bin/python -m pip install -r .llm-agents/requirements.txt`。Dev Container には導入済みのため不要。
+- ビルド・テスト・静的解析コマンド: スキルまたは `.llm-agents/scripts/` を変更した場合は、リポジトリのルートで下記を実行する。ビルドと静的解析は未設定。
+
+  ```sh
+  python3 -m unittest discover -s .llm-agents/tests
+  python3 .llm-agents/scripts/register-skills.py --check
+  ```
+
+- コーディング規約: ドキュメントとコメントは日本語とし、句点は `。`、読点は `、` を使う。Python は標準ライブラリを優先し、依存を追加する場合は `.llm-agents/requirements.txt` に明記する。
