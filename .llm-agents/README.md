@@ -19,6 +19,7 @@ Claude Code、Codex、GitHub Copilot の3種類の拡張機能で共通の指示
 - `instructions.md`: 共通プロンプトの唯一の本体です。プロジェクトの目的や検証コマンドをここに記入してください。
 - `skills/`: 再利用するスキルの本体を配置します（例: `skills/review/SKILL.md`）。
 - `agents/`: 役割別のエージェント定義を配置します（例: `agents/reviewer.md`）。
+- `tmp/`: 同じ作業環境のエージェント間で参照する作業記録やレビュー結果などの一時ファイルを、必要時に作成します。Git 管理対象外のため、クローン先や他の環境には共有されません。継続して共有・保存する内容は、適切な Git 管理対象のドキュメントへ転記してください。
 
 `skills/` には共有スキル作成用の `create-shared-skill` を用意しています。`agents/` は空の配置先です。共通プロンプトがこのページの一覧から必要なスキルを選び、その本体を読む構成です。各エージェントの探索場所に本体へのリンクを置き、コマンドからも呼び出せるようにしています。
 
@@ -29,6 +30,7 @@ Claude Code、Codex、GitHub Copilot の3種類の拡張機能で共通の指示
 | 名前 | 利用する場面 | 本体 |
 | --- | --- | --- |
 | `create-shared-skill` | 3エージェントで共有するスキルの作成・更新 | [SKILL.md](skills/create-shared-skill/SKILL.md) |
+| `setup-project` | 目的や技術スタックを対話で整理し、開発環境とドキュメントを設定 | [SKILL.md](skills/setup-project/SKILL.md) |
 
 ## スキルを作成・利用する
 
@@ -58,6 +60,9 @@ Claude Code、Codex、GitHub Copilot のいずれでも、例えば次のよう�
 | Claude Code | `/create-shared-skill レビュー用のスキルを作成してください` | `.claude/skills/create-shared-skill/` |
 | GitHub Copilot（VS Code） | `/create-shared-skill レビュー用のスキルを作成してください` | `.claude/skills/create-shared-skill/` |
 | Codex（CLI・IDE） | `$create-shared-skill レビュー用のスキルを作成してください` | `.agents/skills/create-shared-skill/` |
+| Claude Code | `/setup-project React と FastAPI を使ったアプリを開発したいです` | `.claude/skills/setup-project/` |
+| GitHub Copilot（VS Code） | `/setup-project React と FastAPI を使ったアプリを開発したいです` | `.claude/skills/setup-project/` |
+| Codex（CLI・IDE） | `$setup-project 本の貸出管理アプリを開発したいです` | `.agents/skills/setup-project/` |
 
 Claude Code と Copilot では `/`、Codex では `$` から候補を選びます。Codex の `/skills` からもスキルを選択できます。候補に出ない場合は、下記の登録確認後にエージェントを再起動するか、VS Code の `Developer: Reload Window` を実行してください。
 

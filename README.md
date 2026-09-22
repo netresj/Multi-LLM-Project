@@ -11,8 +11,16 @@ Windows、macOS、Linux（Ubuntu）での開発を対象とします。
 1. このリポジトリをテンプレートとして利用するか、クローンします。Windows で直接クローンする場合は、スキル登録用のシンボリックリンクを保持するため [Windows での利用](.llm-agents/README.md#windows-での利用) を先に確認してください。
 2. VS Code でリポジトリのルートを開き、必要な推奨拡張機能をインストールします。
 3. 利用する Claude Code、Codex、GitHub Copilot のアカウントでサインインします。
-4. [共通ルール](AGENTS.md) を確認し、[共通プロンプト](.llm-agents/instructions.md) の未設定項目をプロジェクトに合わせて記入します。
+4. [共通ルール](AGENTS.md) を確認し、[共通プロンプト](.llm-agents/instructions.md) のプロジェクト固有の情報を更新します。対話で設定する場合は、下記の `setup-project` を利用できます。
 5. 共通のコンテナ環境を使う場合は、[Dev Container の手順](.devcontainer/README.md) に従います。
+
+## 対話でプロジェクトを設定する
+
+[setup-project](.llm-agents/skills/setup-project/SKILL.md) に開発したいものの目的や技術スタックを伝えると、不足する要件を対話で整理し、Dev Container、共通プロンプト、README などを更新します。
+
+例えば「このリポジトリの setup-project スキルを使って、本の貸出管理アプリの開発環境を設定してください」と依頼できます。
+
+エージェント別の記法や候補に出ない場合の対処は、[コマンドで呼び出す](.llm-agents/README.md#コマンドで呼び出す) を参照してください。
 
 ## ディレクトリ構成
 
@@ -29,6 +37,7 @@ Windows、macOS、Linux（Ubuntu）での開発を対象とします。
 │   ├── requirements.txt            # 登録スクリプトの依存（PyYAML）
 │   ├── skills/                     # スキルの本体の配置先
 │   ├── agents/                     # エージェント定義の本体の配置先
+│   ├── tmp/                        # 必要時に作成するローカルの一時記録（Git 管理対象外）
 │   ├── scripts/
 │   │   └── register-skills.py      # 探索場所へのリンクの登録・検証
 │   └── tests/
