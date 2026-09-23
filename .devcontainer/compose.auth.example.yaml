@@ -1,0 +1,29 @@
+# compose.auth.yaml にコピーし、使う項目だけ有効にする。
+# devcontainer.json の dockerComposeFile に追加する必要がある。
+services:
+  devcontainer:
+    # API キーを使う場合だけ有効化し、auth.env を作成する。
+    # env_file:
+    #   - ./auth.env
+    volumes: []
+    # ホスト上に存在する絶対パスに変更する（Windows は C:/Users/...）。
+    # 同じ target の名前付きボリュームを、このバインドで置き換える。
+    # トークン更新のため書き込み可能。ホストの設定・履歴も共有される。
+    # volumes:
+    #   - type: bind
+    #     source: /absolute/path/to/.codex
+    #     target: /home/vscode/.codex
+    #     bind:
+    #       create_host_path: false
+    #   - type: bind
+    #     source: /absolute/path/to/.claude
+    #     target: /home/vscode/.claude
+    #     bind:
+    #       create_host_path: false
+    # SSH agent が使えない場合の鍵の読み取り専用マウント。
+    #   - type: bind
+    #     source: /absolute/path/to/id_ed25519
+    #     target: /mnt/git-ssh-key
+    #     read_only: true
+    #     bind:
+    #       create_host_path: false

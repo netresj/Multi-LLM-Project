@@ -14,6 +14,8 @@ Windows、macOS、Linux（Ubuntu）での開発を対象とします。
 4. [共通ルール](AGENTS.md) を確認し、[共通プロンプト](.llm-agents/instructions.md) のプロジェクト固有の情報を更新します。対話で設定する場合は、下記の `setup-project` を利用できます。
 5. 共通のコンテナ環境を使う場合は、[Dev Container の手順](.devcontainer/README.md) に従います。
 
+コンテナでは Codex・Claude Code の認証用ディレクトリを永続化します。ホストの認証ファイルの共有、GitHub Copilot のサインイン、Git の SSH agent・鍵ファイル・HTTPS 認証の選択は [認証の引き継ぎ](.devcontainer/README.md#認証の引き継ぎ) を参照してください。
+
 ## 対話でプロジェクトを設定する
 
 [setup-project](.llm-agents/skills/setup-project/SKILL.md) に開発したいものの目的や技術スタックを伝えると、不足する要件を対話で整理し、Dev Container、共通プロンプト、README などを更新します。

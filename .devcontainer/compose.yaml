@@ -9,7 +9,11 @@ services:
     command: sleep infinity
     volumes:
       - ..:/workspaces/Multi-LLM-Project:cached
+      - codex-state:/home/vscode/.codex
+      - claude-state:/home/vscode/.claude
     environment:
+      CODEX_HOME: /home/vscode/.codex
+      CLAUDE_CONFIG_DIR: /home/vscode/.claude
       HTTP_PROXY: http://proxy:3128
       HTTPS_PROXY: http://proxy:3128
       http_proxy: http://proxy:3128
@@ -32,3 +36,8 @@ services:
       timeout: 3s
       retries: 10
       start_period: 10s
+
+# 認証・設定を再構築後も保持する。down --volumes では削除される。
+volumes:
+  codex-state:
+  claude-state:

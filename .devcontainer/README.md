@@ -28,6 +28,88 @@ Compose を手動で起動する必要はありません。拡張機能が `devc
 
 作成時に `postCreateCommand` で共有スキルの登録スクリプトを実行します。コマンドの利用方法は [エージェント構成](../.llm-agents/README.md#コマンドで呼び出す) を参照してください。
 
+## 認証の引き継ぎ
+
+Codex の `/home/vscode/.codex` と Claude Code の `/home/vscode/.claude` は名前付きボリュームに保存します。Claude Code は `CLAUDE_CONFIG_DIR` で保存先を指定します。コンテナ内で初回ログインすると、ファイルに保存された認証・設定を再構築後も使えます。既存コンテナの書き込み層に認証を保存していた場合は、再構築前に退避するか、再構築後に再ログインしてください。`docker compose down --volumes` は認証用ボリュームも削除します。
+
+### ホストの認証ファイルを共有する
+
+1. `.devcontainer/compose.auth.example.yaml` を同じ場所の `compose.auth.yaml` にコピーします。
+2. `volumes: []` を削除し、必要なマウントだけコメントを外します。`source` はホスト上の既存ディレクトリの絶対パスに変更してください。Windows は `C:/Users/名前/.codex` のように指定します。リモート Docker では Docker ホスト上のパスになります。
+3. `devcontainer.json` の `dockerComposeFile` を次に変更します。
+
+   ```json
+   "dockerComposeFile": ["compose.yaml", "compose.auth.yaml"]
+   ```
+
+4. `Dev Containers: Rebuild Container` を実行します。
+
+追加ファイルは自動では読み込みません。ホストから Compose を操作する場合も、`docker compose -f .devcontainer/compose.yaml -f .devcontainer/compose.auth.yaml ...` と両方を指定してください。設定確認は末尾に `config --quiet` を付けます。
+
+| ツール | ホスト認証の利用方法 |
+| --- | --- |
+| Codex | ホストの `~/.codex`（`CODEX_HOME` を変更している場合はそのディレクトリ）を共有します。`auth.json` が必要です。Keychain／keyring のみの場合は、ホストの `config.toml` で `cli_auth_credentials_store = "file"` を設定してログインし直すか、コンテナ内でログインしてください。 |
+| Claude Code | Linux などでファイル保存された `~/.claude/.credentials.json` を含むディレクトリを共有できます。macOS Keychain の認証はディレクトリ共有では移行できないため、コンテナ側の拡張機能でログインするか API キーを利用します。ホストの `~/.claude.json` にある初期設定・信頼状態は自動移行しないため、初回の確認が表示される場合があります。 |
+| GitHub Copilot | ホストの VS Code の「アカウント」で GitHub にサインインし、コンテナの Copilot で同じアカウントを選びます。認証を求められたら VS Code のサインイン操作を完了してください。Git の credential helper や SSH 鍵は Copilot のサインインの代わりにはなりません。 |
+
+共有ディレクトリはトークンの更新を可能にするため書き込み可能です。認証だけでなく設定・履歴・ログアウトもホスト側に影響します。同じ認証の同時利用で更新が競合する場合は、共有を外してコンテナ内で個別にログインしてください。コンテナ内の UID がホストの所有者と異なる場合は、書き込み権限の調整か名前付きボリュームでの個別ログインが必要です。
+
+仕様は [Codex の認証](https://developers.openai.com/codex/auth/)、[Claude Code の認証](https://code.claude.com/docs/en/authentication)、[Claude Code の設定](https://code.claude.com/docs/en/settings)、[Copilot のセットアップ](https://docs.github.com/en/copilot/how-tos/set-up/install-copilot-extension) を参照してください。
+
+### API キーを使う場合
+
+`auth.env.example` を `auth.env` にコピーして利用するキーだけ設定し、`compose.auth.yaml` の `env_file` を有効にします。上記の Compose ファイル追加と再構築も必要です。`auth.env` と `compose.auth.yaml` は Git 管理対象外です。API 利用はサブスクリプション認証とは別の課金・権限になります。
+
+Claude Code は `ANTHROPIC_API_KEY` を利用できます。Codex CLI を別途インストールしている場合は、コンテナ内で次を実行します。環境変数を渡すだけでは、Codex 拡張機能のサインインが完了するとは限りません。
+
+```sh
+printenv OPENAI_API_KEY | codex login --with-api-key
+```
+
+キーはコンテナの環境変数になります。値を表示する `docker inspect` や `docker compose config` の出力を共有しないでください。構成確認には `config --quiet` を使います。
+
+### Git: SSH agent を利用する（推奨）
+
+Dev Containers は起動中のホストの SSH agent を自動転送します。ホストで鍵を登録してからコンテナを開き直してください。秘密鍵ファイルのマウントは不要です。
+
+```sh
+# ホストで実行する。鍵のパスは利用中のものに変更する。
+ssh-add ~/.ssh/id_ed25519
+ssh-add -l
+```
+
+Linux で agent が未起動の場合は `eval "$(ssh-agent -s)"` の後で登録し、その環境から VS Code を起動します。Windows は管理者 PowerShell で `Set-Service ssh-agent -StartupType Automatic`、`Start-Service ssh-agent` を実行し、通常の PowerShell で `ssh-add "$env:USERPROFILE/.ssh/id_ed25519"` を実行します。
+
+コンテナ内の `ssh-add -l` で鍵の転送、`git ls-remote origin HEAD` で現在の remote へのアクセスを確認できます。初回の SSH 接続では、接続先が公開するホスト鍵のフィンガープリントと照合してください。Compose 単独起動では VS Code による agent・credential helper の転送はありません。
+
+### Git: 秘密鍵ファイルを利用する
+
+agent を使えない場合は `compose.auth.yaml` の鍵マウント例を有効にします。鍵をリポジトリには置かず、ホスト上の鍵を読み取り専用で `/mnt/git-ssh-key` にマウントします。再構築後、コンテナ内で次を実行します。
+
+```sh
+mkdir -p ~/.ssh
+chmod 700 ~/.ssh
+# 上書きを避けるため、この名前の鍵が存在しないことを確認する。
+test ! -e ~/.ssh/devcontainer_git_key && install -m 600 /mnt/git-ssh-key ~/.ssh/devcontainer_git_key
+export GIT_SSH_COMMAND='ssh -i /home/vscode/.ssh/devcontainer_git_key -o IdentitiesOnly=yes'
+git ls-remote origin HEAD
+```
+
+コピー先の名前は既存の鍵と重複させないでください。この環境変数は現在のシェルだけに適用されます。継続利用する場合はコンテナ内の `~/.bashrc` に `export` 行を追加します。鍵のコピーとシェル設定は再構築後に再実行します。パスフレーズ付きの鍵は入力を求められます。ホストの SSH 設定・踏み台・証明書は自動移行しないので、必要なものを個別に設定してください。
+
+### Git: HTTPS 認証に切り替える
+
+ホストの Git で OS の credential helper を設定し、HTTPS で認証しておくと、Dev Containers がその認証をコンテナから利用できるようにします。SSH 用の remote を変更する場合は、コンテナ内で次を実行してください。
+
+```sh
+git remote set-url origin https://github.com/OWNER/REPO.git
+git ls-remote origin HEAD
+```
+
+`OWNER/REPO` は対象リポジトリに置き換えます。remote の変更は共有ワークスペースのホスト側にも反映されます。URL にトークンを埋め込まないでください。HTTPS は設定済みの HTTP プロキシを利用します。SSH は `HTTP_PROXY` を自動利用しないため、SSH が禁止されたネットワークでは HTTPS を選びます。GitHub Enterprise などの独自ホストはプロキシの許可リストにも追加してください。
+
+Git の転送機能の詳細は [VS Code の認証情報共有](https://code.visualstudio.com/remote/advancedcontainers/sharing-git-credentials) を参照してください。
+
 ## 外部アクセス用プロキシ
 
 `compose.yaml` で開発用の `devcontainer` と Squid の `proxy` を一緒に起動します。Squid のヘルスチェックが成功すると開発用コンテナを起動し、VS Code から環境を閉じると両サービスを停止します。

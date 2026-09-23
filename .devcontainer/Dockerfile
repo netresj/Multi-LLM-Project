@@ -9,7 +9,7 @@ USER root
 
 # 検索範囲と JSON の出力項目を絞る補助ツールも用意する。
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends ca-certificates curl ripgrep jq python3 python3-yaml \
+    && apt-get install -y --no-install-recommends ca-certificates curl git openssh-client ripgrep jq python3 python3-yaml \
     && rm -rf /var/lib/apt/lists/*
 
 # 公式インストーラが CPU を判定し、配布バイナリの SHA-256 を検証する。
@@ -22,6 +22,10 @@ RUN curl -fsSL --retry 3 \
     && rtk --version
 
 USER vscode
+
+# 名前付きボリュームの初期内容と所有者を利用ユーザに揃える。
+RUN mkdir -p /home/vscode/.codex /home/vscode/.claude \
+    && chmod 700 /home/vscode/.codex /home/vscode/.claude
 
 # 実際の利用ユーザで実行と統計データの書き込みを確認する。
 RUN rtk gain && rg --version && jq --version \
